@@ -1,0 +1,1 @@
+"C:\ue4\UE_4.21\Engine\Build\BatchFiles\RunUAT.bat" BuildPlugin -Plugin="%~dp0..\LanParty.uplugin" -Package="\\AMD\Public\Packages\LanParty\Plugin" -Rocket
