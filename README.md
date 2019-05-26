@@ -1,7 +1,3 @@
-- [About](#about)
-  - [When you need](#when-you-need)
-  - [More Info](#more-info)
-
 # About
 This repo contains a proof-of-concept/prototype/WIP session-less LAN discovery and matchmaking plugin written for an internal project. It's up here solely for sharing purposes given the scarcity of documentation and samples covering the `IMessageBus` and friends interface, and is __definitely not suitable for general re-use__ since it's very project-specific, lacking any tests, and is probably full of booby traps in the shape of hastily-written noob c++ code.
 
