@@ -9,7 +9,7 @@
 #include "Misc/CommandLine.h"
 #include <iso646.h>
 
-#define print(text, ...) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5, FColor::White, FString::Printf(text, __VA_ARGS__))
+#define print(text, ...) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 0, FColor::White, FString::Printf(text, __VA_ARGS__))
 
 ULanPartyManager::ULanPartyManager()
 {
@@ -147,13 +147,13 @@ void ULanPartyManager::JoinParty()
 
     CurrentParticipants.AddUnique(LocalHostAddress);
 
+    PlayerJoinedPartyDelegate.Broadcast(PlayerIndex);
+    
     // manually construct message in order to update MatchStartTime
     MatchStartTime = FDateTime::Now() + FTimespan::FromSeconds(MatchmakingLengthSeconds);
 
     const auto Message = new FLanPartyMessage(PlayerIndex, LocalHostAddress, ELanPartyMessageType::JoinParty,
                                               IsInParty(), MatchStartTime.GetTicks());
-
-    PlayerJoinedPartyDelegate.Broadcast(PlayerIndex);
 
     PublishPartyMessage(Message);
 }
