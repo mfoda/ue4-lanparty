@@ -133,5 +133,5 @@ private:
     FString GetServerIpAddress();
 
     /** Clear local party list */
-        void ResetParty();
+    void ResetParty();
 };

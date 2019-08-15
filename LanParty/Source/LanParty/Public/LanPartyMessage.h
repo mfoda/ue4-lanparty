@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Timespan.h"
 #include "LanPartyMessage.generated.h"
 
 UENUM(BlueprintType)
@@ -34,21 +35,21 @@ struct LANPARTY_API FLanPartyMessage
     UPROPERTY()
         bool IsInCurrentParty;
 
-    /** Time next match will start */
+    /** Match start time offset in seconds */
     UPROPERTY()
-        int64 MatchStartTimeTicks;
+        double MatchStartTimeOffset;
 
     FLanPartyMessage(): PlayerIndex(0), PartyMessageType(ELanPartyMessageType::None), IsInCurrentParty(false),
-                        MatchStartTimeTicks(FDateTime::MinValue().GetTicks())
+                        MatchStartTimeOffset(0)
     { }
 
     explicit FLanPartyMessage(const uint8 InPlayerIndex, const FString &InSenderIpAddress,
                               const ELanPartyMessageType InPartyMessageType, const bool InIsInCurrentParty,
-                              const int64 InMatchStartTimeTicks) :
+                              const double InMatchStartTimeOffset) :
     PlayerIndex(InPlayerIndex),
     IpAddress(InSenderIpAddress),
     PartyMessageType(InPartyMessageType), 
     IsInCurrentParty(InIsInCurrentParty),
-    MatchStartTimeTicks(InMatchStartTimeTicks)
+    MatchStartTimeOffset(InMatchStartTimeOffset)
     { }
 };

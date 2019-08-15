@@ -7,9 +7,10 @@
 #include "SocketSubsystem.h"
 #include "IPAddress.h"
 #include "Misc/CommandLine.h"
+#include "Timespan.h"
 #include <iso646.h>
 
-#define print(text, ...) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 5, FColor::White, FString::Printf(text, __VA_ARGS__))
+#define print(text, ...) if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 0, FColor::White, FString::Printf(text, __VA_ARGS__))
 
 ULanPartyManager::ULanPartyManager()
 {
@@ -93,9 +94,11 @@ void ULanPartyManager::OnPlayerDiscovered(const FMessageAddress& SenderAddress, 
 {
     KnownEndpoints.AddUnique(SenderAddress);
 
-    // update MatchStartTime if greater than ours
-    if (Message.MatchStartTimeTicks > MatchStartTime.GetTicks())
-        MatchStartTime = FDateTime(Message.MatchStartTimeTicks);
+    // calculate peer match start time and update if greate than ours
+    const auto TheirMatchStartTime = FDateTime::Now() + FTimespan::FromSeconds(Message.MatchStartTimeOffset);
+
+    if (TheirMatchStartTime > MatchStartTime)
+        MatchStartTime = TheirMatchStartTime;
 
     // re-trigger event in case players joined before this instance was alive
     if (Message.IsInCurrentParty)
@@ -147,13 +150,14 @@ void ULanPartyManager::JoinParty()
 
     CurrentParticipants.AddUnique(LocalHostAddress);
 
+    PlayerJoinedPartyDelegate.Broadcast(PlayerIndex);
+    
     // manually construct message in order to update MatchStartTime
-    MatchStartTime = FDateTime::Now() + FTimespan::FromSeconds(MatchmakingLengthSeconds);
+    const auto Offset = FTimespan::FromSeconds(MatchmakingLengthSeconds); 
+    MatchStartTime = FDateTime::Now() + Offset;
 
     const auto Message = new FLanPartyMessage(PlayerIndex, LocalHostAddress, ELanPartyMessageType::JoinParty,
-                                              IsInParty(), MatchStartTime.GetTicks());
-
-    PlayerJoinedPartyDelegate.Broadcast(PlayerIndex);
+                                              IsInParty(), Offset.GetSeconds());
 
     PublishPartyMessage(Message);
 }
@@ -218,7 +222,8 @@ void ULanPartyManager::PublishPartyMessage(const ELanPartyMessageType MessageTyp
 {
     if (MessageSenderEndpoint.IsValid())
     {
-        const auto Message = new FLanPartyMessage(PlayerIndex, LocalHostAddress, MessageType, IsInParty(), MatchStartTime.GetTicks());
+        const auto Offset  = FMath::Max(0.0, (MatchStartTime - FDateTime::Now()).GetTotalSeconds());
+        const auto Message = new FLanPartyMessage(PlayerIndex, LocalHostAddress, MessageType, IsInParty(), Offset);
         MessageSenderEndpoint->Publish<FLanPartyMessage>(Message);
     }
 }
