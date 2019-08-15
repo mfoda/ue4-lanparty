@@ -157,11 +157,7 @@ void ULanPartyManager::JoinParty()
     MatchStartTime = FDateTime::Now() + Offset;
 
     const auto Message = new FLanPartyMessage(PlayerIndex, LocalHostAddress, ELanPartyMessageType::JoinParty,
-<<<<<<< HEAD
                                               IsInParty(), Offset.GetSeconds());
-=======
-                                              IsInParty(), MatchStartTime.GetTicks());
->>>>>>> 4892a6139af48309ddb922b21a147fbf4ce49178
 
     PublishPartyMessage(Message);
 }
